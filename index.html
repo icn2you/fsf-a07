@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!--================================= HEAD =================================-->  
+  <head>
+    <!-- Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Christopher B. Zenner">
+    <meta name="description" content="Full Stack Flex Bootcamp Homework 5">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    
+    <!-- Site-specific Styles -->
+    <link rel="stylesheet" href="assets/css/style.css">    
+
+    <title>Rock Paper Scissors</title>
+  </head>
+
+  <!--================================= BODY =================================-->
+  <body>
+    <!-- Header -->
+    <header></header>
+
+    <!-- Main Content -->
+    <main class="container">
+      <div class="row justify-content-center">
+        <div class="col-sm-4">
+          <div class="card">
+            <h5 class="card-header">Player 1</h5>
+            <div class="card-body">
+              <h5>Wins</h5>
+              <div class="wins"></div>
+              <h5>Losses</h5>
+              <div class="wins"></div>              
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="card">
+            <h5 class="card-header">Player 2</h5>
+            <div class="card-body">
+              <h5>Wins</h5>
+              <div class="wins"></div>
+              <h5>Losses</h5>
+              <div class="wins"></div>              
+            </div>
+          </div>
+        </div>        
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-sm-10">
+          <div class="card">
+            <h5 class="card-header">Rock Paper Scissors</h5>
+            <div class="card-body">
+              <p class="card-text">Click one of the icons below to play a round.</p>
+              <figure>
+                <img src="assets/images/rock.png" alt="Rock" class="img-thumbnail game-token">
+                <figcaption>Rock</figcaption>
+              </figure>
+              <figure>
+                <img src="assets/images/paper.png" alt="Paper" class="img-thumbnail game-token">
+                <figcaption>Paper</figcaption>
+              </figure>
+              <figure>
+                <img src="assets/images/scissors.png" alt="Scissors" class="img-thumbnail game-token">
+                <figcaption>Scissors</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>    
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer></footer>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <!-- Use Google Dev CDN for jQuery due to jQuery's misbehaving CDN    
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <!-- Firebase Core JavaScript Link -->
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
+    <!-- Specific Firebase products we want (Database) -->
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
+
+    <!-- Load Babel -->
+    <!-- v6 <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script> -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- RPS Game Engine -->
+    <script src="assets/javascript/rps.js"></script>        
+  </body>
+
+  </html>

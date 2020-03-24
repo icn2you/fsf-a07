@@ -1,0 +1,41 @@
+/******************************************************************************
+FSWD:  Christopher B. Zenner
+Date:  03/28/2020
+File:  style.css
+Ver.:  0.1.0 20200323
+
+This CSS specifies the layout and styling for the multiplayer RPS game app.
+*******************************************************************************/
+
+/* Debug */
+.debug-border-red { border: 1px solid red !important; }
+.debug-border-org { border: 1px solid orange !important; }
+.debug-border-ylw { border: 1px solid yellow !important; }
+.debug-border-grn { border: 1px solid green !important; }
+.debug-border-blu { border: 1px solid blue !important; }
+.debug-border-pur { border: 1px solid purple !important; }
+
+/******************************************************************************
+ Global Elements
+*******************************************************************************/
+* {
+  /* Make widths static */
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #EEE;
+  color: #000;
+  font-family: sans-serif;
+}
+
+/******************************************************************************
+ Main Elements (Primary Content)
+*******************************************************************************/
+figure {
+  display: inline-block;
+}
+
+.game-token {
+  max-width: 240px;
+}
