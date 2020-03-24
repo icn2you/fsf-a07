@@ -24,7 +24,7 @@
 
     <!-- Main Content -->
     <main class="container">
-      <div class="row justify-content-center">
+      <div class="row justify-content-center mt-2">
         <div class="col-sm-4">
           <div class="card">
             <h5 class="card-header">Player 1</h5>
@@ -48,24 +48,26 @@
           </div>
         </div>        
       </div>
-      <div class="row justify-content-center">
+      <div class="row justify-content-center mt-2">
         <div class="col-sm-10">
           <div class="card">
             <h5 class="card-header">Rock Paper Scissors</h5>
             <div class="card-body">
               <p class="card-text">Click one of the icons below to play a round.</p>
-              <figure>
-                <img src="assets/images/rock.png" alt="Rock" class="img-thumbnail game-token">
-                <figcaption>Rock</figcaption>
-              </figure>
-              <figure>
-                <img src="assets/images/paper.png" alt="Paper" class="img-thumbnail game-token">
-                <figcaption>Paper</figcaption>
-              </figure>
-              <figure>
-                <img src="assets/images/scissors.png" alt="Scissors" class="img-thumbnail game-token">
-                <figcaption>Scissors</figcaption>
-              </figure>
+              <div id="rps-tokens" class="text-center">
+                <figure>
+                  <img src="assets/images/rock.png" alt="Rock" id="rock" class="img-thumbnail game-token">
+                  <figcaption>Rock</figcaption>
+                </figure>
+                <figure>
+                  <img src="assets/images/paper.png" alt="Paper" id="paper" class="img-thumbnail game-token">
+                  <figcaption>Paper</figcaption>
+                </figure>
+                <figure>
+                  <img src="assets/images/scissors.png" alt="Scissors" id="scissors" class="img-thumbnail game-token">
+                  <figcaption>Scissors</figcaption>
+                </figure>
+              </div>
             </div>
           </div>
         </div>    
