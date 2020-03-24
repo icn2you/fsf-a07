@@ -24,7 +24,7 @@
 
     <!-- Main Content -->
     <main class="container">
-      <div class="row justify-content-center mt-2">
+      <div class="row justify-content-center mt-4">
         <div class="col-sm-4">
           <div class="card">
             <h5 class="card-header">Player 1</h5>
@@ -49,28 +49,62 @@
         </div>        
       </div>
       <div class="row justify-content-center mt-2">
-        <div class="col-sm-10">
+        <div class="col-sm-8">
           <div class="card">
-            <h5 class="card-header">Rock Paper Scissors</h5>
+            <h4 class="card-header">Rock Paper Scissors</h4>
             <div class="card-body">
-              <p class="card-text">Click one of the icons below to play a round.</p>
+              <!-- <p class="card-text"></p> -->
               <div id="rps-tokens" class="text-center">
                 <figure>
-                  <img src="assets/images/rock.png" alt="Rock" id="rock" class="img-thumbnail game-token">
+                  <img src="assets/images/rock.png" alt="Rock" id="rock" class="img-fluid img-thumbnail game-token">
                   <figcaption>Rock</figcaption>
                 </figure>
                 <figure>
-                  <img src="assets/images/paper.png" alt="Paper" id="paper" class="img-thumbnail game-token">
+                  <img src="assets/images/paper.png" alt="Paper" id="paper" class="img-fluid img-thumbnail game-token">
                   <figcaption>Paper</figcaption>
                 </figure>
                 <figure>
-                  <img src="assets/images/scissors.png" alt="Scissors" id="scissors" class="img-thumbnail game-token">
+                  <img src="assets/images/scissors.png" alt="Scissors" id="scissors" class="img-fluid img-thumbnail game-token">
                   <figcaption>Scissors</figcaption>
                 </figure>
               </div>
             </div>
           </div>
         </div>    
+      </div>
+      <div class="row justify-content-center mt-2">
+        <div class="col-sm-5">
+          <div class="card">
+            <h5 class="card-header">Directions</h5>
+            <div class="card-body">
+              <p class="card-text">You know the drill! Click one of the icons above to play a round. Your opponent will do the same.</p> 
+              <ul>
+                <li>Rock beats Scissors.</li>
+                <li>Paper beats Rock.</li>
+                <li>Scissors beats Paper.</li>
+              </ul>
+              <p>Play as many rounds as you wish. Do not reload the page; otherwise you will end your game. Enjoy!</p> 
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="card">
+            <h5 class="card-header">Player Info</h5>
+            <div class="card-body">
+              <div class="card-text">
+                <label for="playerID">Player ID</label>
+                <div id="playerID" class="text-muted"></div>
+                <form>
+                  <div class="form-group mt-2">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" placeholder="RPSDominator">
+                  </div>
+                  <button type="button" id="username-submit" class="btn btn-secondary">Submit</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
