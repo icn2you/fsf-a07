@@ -134,7 +134,7 @@ class RPSGame {
 $(document).ready(function() {
   // Create player ID
   var now = new Date(),
-      id = now.getTime() + 'p' + Math.floor(Math.random() * 1000);
+      id = `p${now.getTime()}-${Math.floor(Math.random() * 100000)}`;
   
   // Create new RPS game object.
   let game = new RPSGame(id);
@@ -148,6 +148,9 @@ $(document).ready(function() {
 
   // DEBUG:
   console.log("db: " + gameboard);
+
+  // Display player ID.
+  $('#playerID').text(game.getPlayerID());
 
   // Listen for player's choice
   $('img').on('click', function(event) {
