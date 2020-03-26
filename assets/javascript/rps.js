@@ -70,9 +70,9 @@ class RPSGame {
      Incrementer Methods
      - Increment object properties
      ************************************************************* */   
-    addRound() {
-      this.#round++;
-    }  
+  addRound() {
+    this.#round++;
+  }  
 
   /* *************************************************************
      Setter Methods
@@ -80,60 +80,92 @@ class RPSGame {
      ************************************************************* */   
   setGameID() {
     var dataRef = this.#db.ref(),
+        gameID,
         playerID = this.#playerID,
-        gameID;
-    
-    var player1 = dataRef.child('player1/id').equalTo(playerID),
-        player2 = dataRef.child('player2/id').equalTo(playerID),
-        exists = false;
+        playerPos = this.#playerPos,
+        player1 = dataRef.child('player1');
 
-    // Check if this player's ID is in the database.
     player1.once('value')
       .then(function(snapshot) {
-        var p1ChildNode = snapshot.exists();
+        if (snapshot.exists()) {
+          // DEBUG:
+          console.log("ASSERT: This game has a player1.");
 
-        // DEBUG:
-        console.log(`Player 1 child node exists? ${p1ChildNode}`);
+          var player1ID = dataRef.child('player1/id').equalTo(playerID);
 
-        // If this player's ID is found in the `player1.id` field, 
-        // set the data reference accordingly and return.
-        if (p1ChildNode) {
-          exists = true;
-          gameID = snapshot.key;
+          // Check if this player is `player1`.
+          player1ID.once('value')
+            .then(function(snapshot) {
+              // If this player's ID is found in the `player1.id` field, 
+              // set the data reference accordingly and return.
+              if (snapshot.exists()) {
+                // DEBUG:
+                console.log("ASSERT: This player is player1.");                
+                
+                gameID = snapshot.key();
+              }
+              else {
+                var player2 = dataRef.child('player2');
+
+                player2.once('value')
+                  .then(function(snapshot) {
+
+                    if (snapshot.exists()) {
+                      // DEBUG:
+                      console.log("ASSERT: This game has a player2.");
+                      
+                      var player2ID = dataRef.child('player2/id').equalTo(playerID);
+        
+                      player2ID.once('value')
+                        .then(function(snapshot) {
+                          // If this player's ID is found in the `player2.id` field,
+                          // set the data reference accordingly.
+                          if(snapshot.exists()) {
+                            // DEBUG:
+                            console.log("ASSERT: This player is player2.");
+
+                            playerPos = 2;
+                            gameID = snapshot.key();
+                          }
+                        });
+                    }
+                    else {
+                      // ASSERT: This game doesn't have a second player
+                      // DEBUG:
+                      console.log("ASSERT: This game doesn't have a player2");
+                      
+                      playerPos = 2;
+
+                      gameID = dataRef.update({
+                        [`player${playerPos}`]: { 
+                          id : playerID,
+                          username : `Player ${playerPos}`
+                        },              
+                      });
+                    }      
+                  });  
+              }
+            });
         }
         else {
-          player2.once('value')
-            .then(function(snapshot) {
-              var p2ChildNode = snapshot.exists();
+          // ASSERT: A game doesn't exist so create a new one.
+          console.log("ASSERT: This is a new game.");
 
-              // DEBUG:
-              console.log(`Player 2 child node exists? ${p2ChildNode}`);
-
-              // If this player's ID is found in the `player2.id` field,
-              // set the data reference accordingly.
-              if(p2ChildNode) {
-                gameID = snapshot.key;
-                this.#playerPos = 2;
-              }
-
-              exists = p2ChildNode;
+          gameID = dataRef.push({
+            [`player${playerPos}`]: { 
+              id : playerID,
+              username : `Player ${playerPos}`
+            },
+            timestamp: firebase.database.ServerValue.TIMESTAMP
           });
         }
       });
 
-    // If we didn't find the player in the database, create a new
-    // game object.
-    if (!exists) {
-      gameID = dataRef.push({
-        [`player${this.#playerPos}`]: { 
-          id : this.#playerID,
-          username : `Player ${this.#playerPos}`
-        },
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-      });
-    }
-
     this.#gameID = gameID;
+
+    console.log("this.#gameID = " + this.#gameID);
+
+    this.#playerPos = playerPos;
   }
 
   /* *************************************************************
@@ -171,6 +203,8 @@ $(document).ready(function() {
   // Initiate the RPS game database and set the game object in the database.
   game.initDB(firebaseConfig);
   game.setGameID();
+
+  setInterval(game.getGameID(), 1000);
 
   // Get the reference to the appropriate game object in the database.
   var gameID = game.getGameID(),
