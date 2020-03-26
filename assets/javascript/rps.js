@@ -23,9 +23,9 @@ const firebaseConfig = {
 class RPSGame {
   // PROPERTIES
   #db = null;
-  #gameboard = null;
+  #gameID = null;
   #playerID = null;
-  #opponentID = null;
+  #playerPos = 1;
   
   // METHODS
   /* *************************************************************
@@ -44,31 +44,29 @@ class RPSGame {
     return this.#db;
   }
 
-  getGameBoard() {
-    return this.#gameboard;
+  getGameID() {
+    return this.#gameID;
   }
 
   getPlayerID() {
     return this.#playerID;
   }
 
-  getOpponentID() {
-    return this.#opponentID;
+  getPlayerPos() {
+    return this.#playerPos;
   }
 
   /* *************************************************************
      Setter Methods
      - Set object properties.
      ************************************************************* */   
-  setGameBoard() {
-    var gameboard = this.#db.ref(),
-        playerID = this.#playerID;
+  setGameID() {
+    var dataRef = this.#db.ref(),
+        playerID = this.#playerID,
+        gameID;
     
-    // DEBUG:
-    console.log(`Gameboard: ${gameboard}`);
-
-    var player1 = gameboard.orderByChild('player1').equalTo(playerID),
-        player2 = null,
+    var player1 = dataRef.child('player1/id').equalTo(playerID),
+        player2 = dataRef.child('player2/id').equalTo(playerID),
         exists = false;
 
     // Check if this player's ID is in the database.
@@ -83,12 +81,9 @@ class RPSGame {
         // set the data reference accordingly and return.
         if (p1ChildNode) {
           exists = true;
-          gameboard = player1;
-          return;
+          gameID = snapshot.key;
         }
         else {
-          player2 = gameboard.orderByChild('player2').equalTo(playerID);
-
           player2.once('value')
             .then(function(snapshot) {
               var p2ChildNode = snapshot.exists();
@@ -99,7 +94,8 @@ class RPSGame {
               // If this player's ID is found in the `player2.id` field,
               // set the data reference accordingly.
               if(p2ChildNode) {
-                gameboard = player2;
+                gameID = snapshot.key;
+                this.#playerPos = 2;
               }
 
               exists = p2ChildNode;
@@ -108,15 +104,26 @@ class RPSGame {
       });
 
     // If we didn't find the player in the database, create a new
-    // gameboard object.
+    // game object.
     if (!exists) {
-      gameboard.push({
-        player1ID: this.#playerID,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-      });
+      if (this.#playerPos === 1) {
+        gameID = dataRef.push({
+          player1: { id : this.#playerID },
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
+      else {
+        gameID = dataRef.push({
+          player2: { id : this.#playerID },
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
     }
 
-    this.#gameboard = gameboard;
+    this.#gameID = gameID;
+
+    // DEBUG:
+    // console.log(`game ID: ${gameID}`);    
   }
 
   /* *************************************************************
@@ -141,13 +148,13 @@ $(document).ready(function() {
 
   // Initiate the RPS game database and set the game object in the database.
   game.initDB(firebaseConfig);
-  game.setGameBoard();
+  game.setGameID();
 
   // Get the reference to the appropriate game object in the database.
-  var gameboard = game.getGameBoard();
+  var gameID = game.getGameID();
 
   // DEBUG:
-  console.log("db: " + gameboard);
+  console.log("data ref: " + gameID);
 
   // Display player ID.
   $('#playerID').text(game.getPlayerID());
@@ -160,8 +167,32 @@ $(document).ready(function() {
     console.log(choice);
   });
 
+  $('#username-submit').on('click', function() {
+    var username = $('#username').val();
+
+    if (username || username.length > 0) {
+      if (game.getPlayerPos() === 1) {
+        gameID.child('player1').update({
+          username : username
+      });
+      }
+      else {
+        gameID.child('player2').update({
+          username: username
+        });
+      }
+    }
+  });
+
+  gameID.child('player1/username').on('value', function(snapshot) {
+    var username = snapshot.val();
+    
+    if (username !== null)
+      $('#player1-username').text(username);
+  });
+
   // Listen for the most recent child.
-  gameboard.orderByChild('timestamp').limitToLast(1).on('child_added', function(snapshot) {
+  gameID.orderByChild('timestamp').limitToLast(1).on('child_added', function(snapshot) {
     console.log(snapshot.key);
   }, function(err) {
     console.log(`Error Code: ${err.code}`);
