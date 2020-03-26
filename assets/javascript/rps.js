@@ -23,9 +23,9 @@ const firebaseConfig = {
 class RPSGame {
   // PROPERTIES
   #rules = { 
-    rock&scissors: 'rock',
-    scissors&paper: 'scissors',
-    paper&rock: 'paper'
+    'rock&scissors': 'rock',
+    'scissors&paper': 'scissors',
+    'paper&rock': 'paper'
   };
   #db = null;
   #gameID = null;
