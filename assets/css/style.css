@@ -15,6 +15,26 @@ This CSS specifies the layout and styling for the multiplayer RPS game app.
 .debug-border-blu { border: 1px solid blue !important; }
 .debug-border-pur { border: 1px solid purple !important; }
 
+/* Triad Colors Palette */ 
+.color-primary-0 { color: #4AAAA6 }	/* Main Primary color */
+.color-primary-1 { color: #ADE6E4 }
+.color-primary-2 { color: #75CAC7 }
+.color-primary-3 { color: #2D918E }
+.color-primary-4 { color: #138580 }
+
+.color-secondary-1-0 { color: #FFCE6F }	/* Main Secondary color (1) */
+.color-secondary-1-1 { color: #FFE9BF }
+.color-secondary-1-2 { color: #FFDB94 }
+.color-secondary-1-3 { color: #EFB84B }
+.color-secondary-1-4 { color: #DA9B1F }
+
+.color-secondary-2-0 { color: #FD6E72 }	/* Main Secondary color (2) */
+.color-secondary-2-1 { color: #FEBFC0 }
+.color-secondary-2-2 { color: #FE9396 }
+.color-secondary-2-3 { color: #ED4A4E }
+.color-secondary-2-4 { color: #D81E23 }
+
+
 /******************************************************************************
  Global Elements
 *******************************************************************************/
