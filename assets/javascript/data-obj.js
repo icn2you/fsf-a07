@@ -4,12 +4,14 @@
 var gameboard = {
   'player1': {
     'id': null,
+    'username': null,
     'choices': [],
     'wins': 0,
     'losses': 0
   },
   'player2': {
     'id': null,
+    'username': null,
     'choices': [],
     'wins': 0,
     'losses': 0
