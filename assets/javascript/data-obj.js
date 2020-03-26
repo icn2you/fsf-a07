@@ -5,14 +5,14 @@ var gameboard = {
   'player1': {
     'id': null,
     'username': null,
-    'choices': [],
+    'choices': {},
     'wins': 0,
     'losses': 0
   },
   'player2': {
     'id': null,
     'username': null,
-    'choices': [],
+    'choices': {},
     'wins': 0,
     'losses': 0
   },
@@ -55,5 +55,12 @@ gameDB.ref().push({
   roundWinner: null,
   roundLoser: null,
   timestamp: firebase.database.ServerValue.TIMESTAMP
+});
+
+// Listen for the most recent child.
+gameID.orderByChild('timestamp').limitToLast(1).on('child_added', function(snapshot) {
+  console.log(snapshot.key);
+}, function(err) {
+    console.log(`Error Code: ${err.code}`);
 });
 */

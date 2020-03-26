@@ -22,8 +22,14 @@ const firebaseConfig = {
 
 class RPSGame {
   // PROPERTIES
+  #rules = { 
+    rock&scissors: 'rock',
+    scissors&paper: 'scissors',
+    paper&rock: 'paper'
+  };
   #db = null;
   #gameID = null;
+  #round = 0;
   #playerID = null;
   #playerPos = 1;
   
@@ -48,6 +54,10 @@ class RPSGame {
     return this.#gameID;
   }
 
+  getRoundNo() {
+    return this.#round;
+  }
+
   getPlayerID() {
     return this.#playerID;
   }
@@ -55,6 +65,14 @@ class RPSGame {
   getPlayerPos() {
     return this.#playerPos;
   }
+
+  /* *************************************************************
+     Incrementer Methods
+     - Increment object properties
+     ************************************************************* */   
+    addRound() {
+      this.#round++;
+    }  
 
   /* *************************************************************
      Setter Methods
@@ -106,24 +124,16 @@ class RPSGame {
     // If we didn't find the player in the database, create a new
     // game object.
     if (!exists) {
-      if (this.#playerPos === 1) {
-        gameID = dataRef.push({
-          player1: { id : this.#playerID },
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-      }
-      else {
-        gameID = dataRef.push({
-          player2: { id : this.#playerID },
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-      }
+      gameID = dataRef.push({
+        [`player${this.#playerPos}`]: { 
+          id : this.#playerID,
+          username : `Player ${this.#playerPos}`
+        },
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
     }
 
     this.#gameID = gameID;
-
-    // DEBUG:
-    // console.log(`game ID: ${gameID}`);    
   }
 
   /* *************************************************************
@@ -135,6 +145,18 @@ class RPSGame {
 
     this.#db = firebase.database();
   }
+
+  /* *************************************************************
+     determineRoundWinner(choices)
+     - Return round winner based on rules. If choices are the same,
+       return 'draw'
+     ************************************************************* */
+  determineRoundWinner(choices) {
+    var winner = this.#rules[`${choices}`];
+
+    // DEBUG:
+    console.log(`winner: ${winner}`);
+  }      
 }
 
 // Execute script once page is fully loaded.
@@ -151,7 +173,8 @@ $(document).ready(function() {
   game.setGameID();
 
   // Get the reference to the appropriate game object in the database.
-  var gameID = game.getGameID();
+  var gameID = game.getGameID(),
+      roundChoices;
 
   // DEBUG:
   console.log("data ref: " + gameID);
@@ -163,24 +186,24 @@ $(document).ready(function() {
   $('img').on('click', function(event) {
     var choice = event.target.id;
 
+    game.addRound();
+
     // DEBUG:
-    console.log(choice);
+    // console.log(choice);
+
+    gameID.child(`player${game.getPlayerPos()}/choices`).update({
+      [`round${game.getRoundNo()}`]: choice
+    })
+    
   });
 
   $('#username-submit').on('click', function() {
     var username = $('#username').val();
 
-    if (username || username.length > 0) {
-      if (game.getPlayerPos() === 1) {
-        gameID.child('player1').update({
-          username : username
+    if (username && username.length > 0) {
+      gameID.child(`player${game.getPlayerPos()}`).update({
+        username : username
       });
-      }
-      else {
-        gameID.child('player2').update({
-          username: username
-        });
-      }
     }
   });
 
@@ -188,14 +211,40 @@ $(document).ready(function() {
     var username = snapshot.val();
     
     if (username !== null)
-      $('#player1-username').text(username);
-  });
-
-  // Listen for the most recent child.
-  gameID.orderByChild('timestamp').limitToLast(1).on('child_added', function(snapshot) {
-    console.log(snapshot.key);
+      $('#player1-username').text(username).attr('style', 'color: #138580;');
   }, function(err) {
-    console.log(`Error Code: ${err.code}`);
+      console.log(`Error Code: ${err.code}`);
   });
 
+  gameID.child('player2/username').on('value', function(snapshot) {
+    var username = snapshot.val();
+    
+    if (username !== null)
+      $('#player2-username').text(username).attr('style', 'color: #D81E23');
+  }), function(err) {
+      console.log(`Error Code: ${err.code}`);
+  };
+  
+  gameID.child('player1/choices').on('child_added', function(snapshot) {
+    var p1Choice = snapshot.val();
+    // DEBUG
+    console.log(`Player 1's choice: ${p1Choice}`);
+    roundChoices = p1Choice;
+
+  }), function(err) {
+      console.log(`Error Code: ${err.code}`);
+  }
+
+  gameID.child('player2/choices').on('child_added', function(snapshot) {
+    var p2Choice = snapshot.val(),
+        winner;
+    // DEBUG
+    console.log(`Player 1's choice: ${p1Choice}`);
+    roundChoices += `&${p2Choice}`;
+
+    winner = game.determineRoundWinner();
+
+  }), function(err) {
+      console.log(`Error Code: ${err.code}`);
+  }
 });
