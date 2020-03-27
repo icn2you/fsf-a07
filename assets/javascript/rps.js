@@ -80,7 +80,7 @@ class RPSGame {
      ************************************************************* */   
   setGameID() {
     var dataRef = this.#db.ref(),
-        gameID,
+        gameID = dataRef.push(),
         playerID = this.#playerID,
         playerPos = this.#playerPos,
         player1 = dataRef.child('player1');
@@ -151,7 +151,7 @@ class RPSGame {
           // ASSERT: A game doesn't exist so create a new one.
           console.log("ASSERT: This is a new game.");
 
-          gameID = dataRef.push({
+          gameID.set({
             [`player${playerPos}`]: { 
               id : playerID,
               username : `Player ${playerPos}`
@@ -204,14 +204,12 @@ $(document).ready(function() {
   game.initDB(firebaseConfig);
   game.setGameID();
 
-  setInterval(game.getGameID(), 1000);
-
   // Get the reference to the appropriate game object in the database.
   var gameID = game.getGameID(),
       roundChoices;
 
   // DEBUG:
-  console.log("data ref: " + gameID);
+  console.log("gameID = " + gameID);
 
   // Display player ID.
   $('#playerID').text(game.getPlayerID());
