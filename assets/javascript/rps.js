@@ -23,9 +23,9 @@ const firebaseConfig = {
 class RPSGame {
   // PROPERTIES
   #rules = { 
-    'rock&scissors': 'rock',
-    'scissors&paper': 'scissors',
-    'paper&rock': 'paper'
+    'rock-scissors': 'rock',
+    'scissors-paper': 'scissors',
+    'paper-rock': 'paper'
   };
   #db = null;
   #gameID = null;
@@ -47,7 +47,7 @@ class RPSGame {
      - Get object properties
      ************************************************************* */
   getGameDBRef() {
-    return this.#db;
+    return this.#db.ref();
   }
 
   getGameID() {
@@ -78,93 +78,11 @@ class RPSGame {
      Setter Methods
      - Set object properties.
      ************************************************************* */   
-  setGameID() {
-    var dataRef = this.#db.ref(),
-        gameID = dataRef.push(),
-        playerID = this.#playerID,
-        playerPos = this.#playerPos,
-        player1 = dataRef.child('player1');
-
-    player1.once('value')
-      .then(function(snapshot) {
-        if (snapshot.exists()) {
-          // DEBUG:
-          console.log("ASSERT: This game has a player1.");
-
-          var player1ID = dataRef.child('player1/id').equalTo(playerID);
-
-          // Check if this player is `player1`.
-          player1ID.once('value')
-            .then(function(snapshot) {
-              // If this player's ID is found in the `player1.id` field, 
-              // set the data reference accordingly and return.
-              if (snapshot.exists()) {
-                // DEBUG:
-                console.log("ASSERT: This player is player1.");                
-                
-                gameID = snapshot.key();
-              }
-              else {
-                var player2 = dataRef.child('player2');
-
-                player2.once('value')
-                  .then(function(snapshot) {
-
-                    if (snapshot.exists()) {
-                      // DEBUG:
-                      console.log("ASSERT: This game has a player2.");
-                      
-                      var player2ID = dataRef.child('player2/id').equalTo(playerID);
-        
-                      player2ID.once('value')
-                        .then(function(snapshot) {
-                          // If this player's ID is found in the `player2.id` field,
-                          // set the data reference accordingly.
-                          if(snapshot.exists()) {
-                            // DEBUG:
-                            console.log("ASSERT: This player is player2.");
-
-                            playerPos = 2;
-                            gameID = snapshot.key();
-                          }
-                        });
-                    }
-                    else {
-                      // ASSERT: This game doesn't have a second player
-                      // DEBUG:
-                      console.log("ASSERT: This game doesn't have a player2");
-                      
-                      playerPos = 2;
-
-                      gameID = dataRef.update({
-                        [`player${playerPos}`]: { 
-                          id : playerID,
-                          username : `Player ${playerPos}`
-                        },              
-                      });
-                    }      
-                  });  
-              }
-            });
-        }
-        else {
-          // ASSERT: A game doesn't exist so create a new one.
-          console.log("ASSERT: This is a new game.");
-
-          gameID.set({
-            [`player${playerPos}`]: { 
-              id : playerID,
-              username : `Player ${playerPos}`
-            },
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-          });
-        }
-      });
-
+  setGameID(gameID) {
     this.#gameID = gameID;
+  }
 
-    console.log("this.#gameID = " + this.#gameID);
-
+  setPlayerPos(playerPos) {
     this.#playerPos = playerPos;
   }
 
@@ -200,16 +118,15 @@ $(document).ready(function() {
   // Create new RPS game object.
   let game = new RPSGame(id);
 
-  // Initiate the RPS game database and set the game object in the database.
+  // Initiate the RPS game database.
   game.initDB(firebaseConfig);
-  game.setGameID();
 
   // Get the reference to the appropriate game object in the database.
-  var gameID = game.getGameID(),
+  var dbRef = game.getGameDBRef(),
+      // Get temporary game reference to prevent .on('value') events
+      // from throwing a TypeError
+      gameID = dbRef.push(),
       roundChoices;
-
-  // DEBUG:
-  console.log("gameID = " + gameID);
 
   // Display player ID.
   $('#playerID').text(game.getPlayerID());
@@ -234,10 +151,82 @@ $(document).ready(function() {
 
     if (username && username.length > 0) {
       gameID.child(`player${game.getPlayerPos()}`).update({
-        username : username
+        username: username
       });
     }
   });
+
+  dbRef.orderByValue().limitToLast(1).once('child_added').then(snapshot => {
+    // DEBUG:
+    // console.log(snapshot.ref.toString());
+    console.log(`initial gameID =  ${gameID}`);
+
+    var tempGameID = `game-${now.getTime()}-${Math.floor(Math.random() * 1000000)}`,
+        playerID = game.getPlayerID(),
+        playerPos = game.getPlayerPos();
+
+    if (snapshot.child('waiting').val()) {
+      // ASSERT: We have a game waiting for a second player.
+      // DEBUG:
+      console.log('ASSERT: We have a game waiting for a second player.');
+
+      gameID = snapshot.ref.toString(),
+      playerPos = 2;
+      
+      // DEBUG:
+      // console.log(`gameID = ${gameID}`);
+
+      snapshot.ref.update({
+          [`player${playerPos}`]: { 
+            id: playerID,
+            username: `Player ${playerPos}`
+          },
+          waiting: false
+      });        
+    }
+    else {
+      // ASSERT: We don't have a game waiting for a second player.
+      // DEBUG:
+      console.log('We don\'t have a game waiting for a second player.');
+
+      gameID = `${dbRef}${tempGameID}`;
+
+      dbRef.update({
+        [`${tempGameID}`]: {
+          [`player${playerPos}`]: { 
+            id: playerID,
+            username: `Player ${playerPos}`
+          },
+          waiting: true,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        }
+      });
+    }
+
+    game.setGameID(tempGameID);
+    game.setPlayerPos(2);
+
+    // DEBUG:
+    // console.log(`this.#gameID = ${game.getGameID()}`);
+    console.log(`set gameID =  ${gameID}`);
+
+  }, function(err) {
+      console.log(`Error Code: ${err.code}`);
+  }); 
+
+  /*
+  db.once('child_added').then(snapshot => {
+    // console.log('A child was added!');
+    // console.log(snapshot.ref.toString());
+
+    snapshot.forEach(childSnapshot => {
+      // console.log(`${childSnapshot.key}: ${childSnapshot.val()}`);
+    });
+
+  }), function(err) {
+    console.log(`Error Code: ${err.code}`);
+  };
+  */
 
   gameID.child('player1/username').on('value', function(snapshot) {
     var username = snapshot.val();
@@ -245,7 +234,7 @@ $(document).ready(function() {
     if (username !== null)
       $('#player1-username').text(username).attr('style', 'color: #138580;');
   }, function(err) {
-      console.log(`Error Code: ${err.code}`);
+    console.log(`Error Code: ${err.code}`);
   });
 
   gameID.child('player2/username').on('value', function(snapshot) {
@@ -254,7 +243,7 @@ $(document).ready(function() {
     if (username !== null)
       $('#player2-username').text(username).attr('style', 'color: #D81E23');
   }), function(err) {
-      console.log(`Error Code: ${err.code}`);
+    console.log(`Error Code: ${err.code}`);
   };
   
   gameID.child('player1/choices').on('child_added', function(snapshot) {
@@ -264,7 +253,7 @@ $(document).ready(function() {
     roundChoices = p1Choice;
 
   }), function(err) {
-      console.log(`Error Code: ${err.code}`);
+    console.log(`Error Code: ${err.code}`);
   }
 
   gameID.child('player2/choices').on('child_added', function(snapshot) {
@@ -277,6 +266,6 @@ $(document).ready(function() {
     winner = game.determineRoundWinner();
 
   }), function(err) {
-      console.log(`Error Code: ${err.code}`);
+    console.log(`Error Code: ${err.code}`);
   }
 });
