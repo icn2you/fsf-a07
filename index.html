@@ -79,9 +79,9 @@
             <div class="card-body">
               <p class="card-text">You know the drill! Click one of the icons above to play a round. Your opponent will do the same.</p> 
               <ul>
-                <li>Rock beats Scissors.</li>
-                <li>Paper beats Rock.</li>
-                <li>Scissors beats Paper.</li>
+                <li>Rock crushes Scissors.</li>
+                <li>Paper covers Rock.</li>
+                <li>Scissors cuts Paper.</li>
               </ul>
               <p>Play as many rounds as you wish. Do not reload the page; otherwise you will end your game. Enjoy!</p> 
             </div>
@@ -92,6 +92,8 @@
             <h5 class="card-header">Player Info</h5>
             <div class="card-body">
               <div class="card-text">
+                <label for="round-no">Round </label>
+                <div id="round-no"></div>
                 <label for="playerID">Player ID</label>
                 <div id="playerID" class="text-muted"></div>
                 <form>
@@ -99,7 +101,7 @@
                     <label for="username">Username</label>
                     <input type="text" class="form-control" id="username" placeholder="RPSDominator">
                   </div>
-                  <button type="button" id="username-submit" class="btn btn-secondary">Submit</button>
+                  <button type="button" id="new-opponent" class="btn btn-secondary" disabled>New Opponent</button>
                 </form>
               </div>
             </div>
