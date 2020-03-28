@@ -106,6 +106,8 @@ class RPSGame {
 
     // DEBUG:
     console.log(`winner: ${winner}`);
+
+    return winner;
   }      
 }
 
