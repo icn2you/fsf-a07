@@ -110,7 +110,7 @@ class RPSGame {
 }
 
 // Execute script once page is fully loaded.
-$(document).ready(function() {
+$(document).ready(async () => {
   // Create player ID
   var now = new Date(),
       id = `p${now.getTime()}-${Math.floor(Math.random() * 100000)}`;
@@ -126,7 +126,7 @@ $(document).ready(function() {
   var dbRef = game.getGameDB().ref(),
       // Get temporary game reference to prevent .on('value') events
       // from throwing a TypeError
-      gameID = dbRef.push(),
+      gameRef,
       roundChoices;
 
   // Display player ID.
@@ -141,7 +141,7 @@ $(document).ready(function() {
     // DEBUG:
     // console.log(choice);
 
-    gameID.child(`player${game.getPlayerPos()}/choices`).update({
+    gameRef.child(`player${game.getPlayerPos()}/choices`).update({
       [`round${game.getRoundNo()}`]: choice
     })
     
@@ -151,18 +151,18 @@ $(document).ready(function() {
     var username = $('#username').val();
 
     if (username && username.length > 0) {
-      gameID.child(`player${game.getPlayerPos()}`).update({
+      gameRef.child(`player${game.getPlayerPos()}`).update({
         username: username
       });
     }
   });
 
-  dbRef.orderByValue().limitToLast(1).once('child_added').then(snapshot => {
+  await dbRef.orderByValue().limitToLast(1).once('child_added').then(snapshot => {
     // DEBUG:
     // console.log(snapshot.ref.toString());
-    console.log(`initial gameID =  ${gameID}`);
+    console.log(`initial gameRef =  ${gameRef}`);
 
-    var tempGameID = `game-${now.getTime()}-${Math.floor(Math.random() * 1000000)}`,
+    var gameID = `game-${now.getTime()}-${Math.floor(Math.random() * 1000000)}`,
         playerID = game.getPlayerID(),
         playerPos = game.getPlayerPos();
 
@@ -171,11 +171,13 @@ $(document).ready(function() {
       // DEBUG:
       console.log('ASSERT: We have a game waiting for a second player.');
 
-      gameID = snapshot.ref,
+      gameRef = snapshot.ref,
+      gameID = snapshot.ref.key,
       playerPos = 2;
       
       // DEBUG:
-      // console.log(`gameID = ${gameID}`);
+      console.log(`gameRef = ${gameRef}`);
+      console.log(`gameID = ${gameID}`);
 
       snapshot.ref.update({
           [`player${playerPos}`]: { 
@@ -190,10 +192,10 @@ $(document).ready(function() {
       // DEBUG:
       console.log('We don\'t have a game waiting for a second player.');
 
-      gameID = game.getGameDB().ref(`${tempGameID}`);
+      gameRef = game.getGameDB().ref(`${gameID}`);
 
       dbRef.update({
-        [`${tempGameID}`]: {
+        [`${gameID}`]: {
           [`player${playerPos}`]: { 
             id: playerID,
             username: `Player ${playerPos}`
@@ -204,12 +206,12 @@ $(document).ready(function() {
       });
     }
 
-    game.setGameID(tempGameID);
-    game.setPlayerPos(2);
+    game.setGameID(gameID);
+    game.setPlayerPos(playerPos);
 
     // DEBUG:
-    // console.log(`this.#gameID = ${game.getGameID()}`);
-    console.log(`set gameID =  ${gameID}`);
+    // console.log(`set gameRef =  ${gameRef}`);
+    console.log(`this.#gameID = ${game.getGameID()}`);
 
   }, function(err) {
       console.log(`Error Code: ${err.code}`);
@@ -229,25 +231,25 @@ $(document).ready(function() {
   };
   */
 
-  gameID.child('player1/username').on('value', function(snapshot) {
+  db.ref(`${game.getGameID()}/player1/username`).on('value', snapshot => {
     var username = snapshot.val();
     
     if (username !== null)
       $('#player1-username').text(username).attr('style', 'color: #138580;');
-  }, function(err) {
+  }, err => {
     console.log(`Error Code: ${err.code}`);
   });
 
-  gameID.child('player2/username').on('value', function(snapshot) {
+  db.ref(`${game.getGameID()}/player2/username`).on('value', snapshot => {
     var username = snapshot.val();
     
     if (username !== null)
       $('#player2-username').text(username).attr('style', 'color: #D81E23');
-  }), function(err) {
+  }), err => {
     console.log(`Error Code: ${err.code}`);
   };
   
-  gameID.child('player1/choices').on('child_added', function(snapshot) {
+  db.ref(`${game.getGameID()}/player1/choices`).on('child_added', function(snapshot) {
     var p1Choice = snapshot.val();
     // DEBUG
     console.log(`Player 1's choice: ${p1Choice}`);
@@ -257,7 +259,7 @@ $(document).ready(function() {
     console.log(`Error Code: ${err.code}`);
   }
 
-  gameID.child('player2/choices').on('child_added', function(snapshot) {
+  db.ref(`${game.getGameID()}/player2/choices`).on('child_added', function(snapshot) {
     var p2Choice = snapshot.val(),
         winner;
     // DEBUG
