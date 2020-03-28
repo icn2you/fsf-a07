@@ -130,21 +130,33 @@ $(document).ready(async () => {
   $('#playerID').text(game.getPlayerID());
 
   // Listen for player's choice
-  $('img').on('click', function(event) {
-    var choice = event.target.id;
+  $('img').on('click', event => {
+    event.preventDefault();
 
-    game.addRound();
+    var disabled = $('#rps-tokens').attr('disabled');
 
-    // DEBUG:
-    console.log(choice);
-
-    gameRef.child(`player${game.getPlayerPos()}/choice`).update({
-      choice: choice
-    })
+    // console.log(`disabled = ${disabled}`);
     
+    if (disabled) {
+      return;
+    }
+    else {
+      $('#rps-tokens').attr({ disabled: true });
+
+      var choice = event.target.id;
+
+      game.addRound();
+  
+      // DEBUG:
+      // console.log(choice);
+  
+      gameRef.child(`player${game.getPlayerPos()}`).update({
+        choice: choice
+      });
+    }
   });
 
-  $('#username-submit').on('click', () => {
+  $('#username').on('change', () => {
     var username = $('#username').val();
 
     if (username && username.length > 0) {
@@ -233,25 +245,33 @@ $(document).ready(async () => {
     console.log(`Error Code: ${err.code}`);
   };
   
-  db.ref(`${game.getGameID()}/player1/choices`).on('child_added', snapshot => {
-    var p1Choice = snapshot.val();
-    // DEBUG
-    console.log(`Player 1's choice: ${p1Choice}`);
-    roundChoices = p1Choice;
-
+  db.ref(`${game.getGameID()}/player1/choice`).on('value', snapshot => {
+    if (snapshot.val()) {
+      var p1Choice = snapshot.val();
+      
+      // DEBUG
+      console.log(`Player 1's choice: ${p1Choice}`);
+      
+      roundChoices = p1Choice;
+    }
   }), err => {
     console.log(`Error Code: ${err.code}`);
   }
 
-  db.ref(`${game.getGameID()}/player2/choices`).on('child_added', snapshot => {
-    var p2Choice = snapshot.val(),
-        winner;
-    // DEBUG
-    console.log(`Player 1's choice: ${p1Choice}`);
-    roundChoices += `&${p2Choice}`;
+  db.ref(`${game.getGameID()}/player2/choice`).on('value', snapshot => {
+    if (snapshot.val()) {
+      var p2Choice = snapshot.val();
+      
+      // DEBUG
+      console.log(`Player 2's choice: ${p2Choice}`);
+      
+      roundChoices += `-${p2Choice}`;
 
-    winner = game.determineRoundWinner();
+      winner = game.determineRoundWinner();
 
+      // DEBUG:
+      console.log(`The winner of Round ${game.getRoundNo} was ${winner}!`);
+    }
   }), err => {
     console.log(`Error Code: ${err.code}`);
   }
