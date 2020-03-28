@@ -296,7 +296,7 @@ $(document).ready(async () => {
     console.log(`Error Code: ${err.code}`);
   }
 
-  db.ref(`${game.getGameID()}/choices`).on('add_child', snapshot => {
+  db.ref(`${game.getGameID()}/choices`).on('child_added', snapshot => {
     var winningChoice = game.determineRoundWinner(`${player1Choice}-${player2Choice}`),
     winner = "TIE";
 
