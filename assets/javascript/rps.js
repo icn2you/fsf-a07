@@ -24,8 +24,11 @@ class RPSGame {
   // PROPERTIES
   #rules = { 
     'rock-scissors': 'rock',
+    'scissors-rock': 'rock',
     'scissors-paper': 'scissors',
-    'paper-rock': 'paper'
+    'paper-scissors': 'scissors',
+    'paper-rock': 'paper',
+    'rock-paper': 'paper'
   };
   #db = null;
   #gameID = null;
@@ -126,7 +129,8 @@ $(document).ready(async () => {
   // Get the RPS game database for event listeners and such.
   var db = game.getGameDB(),
       gameRef,
-      roundChoices;
+      player1Choice,
+      player2Choice;
 
   // Display player ID.
   $('#playerID').text(game.getPlayerID());
@@ -151,10 +155,12 @@ $(document).ready(async () => {
   
       // DEBUG:
       // console.log(choice);
-  
-      gameRef.child(`player${game.getPlayerPos()}`).update({
-        choice: choice,
+      gameRef.update({
         rounds: game.getRoundNo()
+      });
+
+      gameRef.child(`player${game.getPlayerPos()}`).update({
+        choice: choice
       });
     }
   });
@@ -250,12 +256,20 @@ $(document).ready(async () => {
   
   db.ref(`${game.getGameID()}/player1/choice`).on('value', snapshot => {
     if (snapshot.val()) {
-      var p1Choice = snapshot.val();
+      player1Choice = snapshot.val();
       
       // DEBUG
       console.log(`Player 1's choice: ${p1Choice}`);
-      
-      roundChoices = p1Choice;
+
+      if (player2Choice) {
+        gameRef.update({
+          rounds: game.getRoundNo(),
+          choices: { `round${game.getRoundNo()}` : { 
+            player1: `${player1Choice}`,
+            player2: `${player2Choice}`
+          }
+        }});
+      }
     }
   }), err => {
     console.log(`Error Code: ${err.code}`);
@@ -263,20 +277,39 @@ $(document).ready(async () => {
 
   db.ref(`${game.getGameID()}/player2/choice`).on('value', snapshot => {
     if (snapshot.val()) {
-      var p2Choice = snapshot.val();
+      player2Choice = snapshot.val();
       
       // DEBUG
       console.log(`Player 2's choice: ${p2Choice}`);
-      
-      roundChoices += `-${p2Choice}`;
 
-      console.log(`roundChoices = ${roundChoices}`)
-
-      winner = game.determineRoundWinner(roundChoices);
-
-      // DEBUG:
-      console.log(`The winner of Round ${game.getRoundNo()} was ${winner}!`);
+      if (player1Choice) {
+        gameRef.update({
+          rounds: game.getRoundNo(),
+          choices: { `round${game.getRoundNo()}` : { 
+            player1: `${player1Choice}`,
+            player2: `${player2Choice}`
+          }
+        }});
+      }
     }
+  }), err => {
+    console.log(`Error Code: ${err.code}`);
+  }
+
+  db.ref(`${game.getGameID()}/choices`).on('add_child', snapshot => {
+    var winningChoice = game.determineRoundWinner(`${player1Choice}-${player2Choice}`),
+    winner = "TIE";
+
+    if (player1Choice === winningChoice) {
+      // ASSERT: Player 1 won this round.
+      winner = $('#player1-username').val();
+    } else if (player2Choice === winningChoice) {
+      // ASSERT: Playr 2 won this round.
+      winner = $('#player2-username').val();
+    }
+
+    // DEBUG:
+    console.log(`The winner of Round ${game.getRoundNo()} was ${winner}!`);
   }), err => {
     console.log(`Error Code: ${err.code}`);
   }
