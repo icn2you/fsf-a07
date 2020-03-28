@@ -267,10 +267,10 @@ $(document).ready(async () => {
       
       roundChoices += `-${p2Choice}`;
 
-      winner = game.determineRoundWinner();
+      winner = game.determineRoundWinner(roundChoices);
 
       // DEBUG:
-      console.log(`The winner of Round ${game.getRoundNo} was ${winner}!`);
+      console.log(`The winner of Round ${game.getRoundNo()} was ${winner}!`);
     }
   }), err => {
     console.log(`Error Code: ${err.code}`);
