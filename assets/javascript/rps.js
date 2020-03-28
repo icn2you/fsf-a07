@@ -153,7 +153,8 @@ $(document).ready(async () => {
       // console.log(choice);
   
       gameRef.child(`player${game.getPlayerPos()}`).update({
-        choice: choice
+        choice: choice,
+        rounds: game.getRoundNo()
       });
     }
   });
@@ -268,6 +269,8 @@ $(document).ready(async () => {
       console.log(`Player 2's choice: ${p2Choice}`);
       
       roundChoices += `-${p2Choice}`;
+
+      console.log(`roundChoices = ${roundChoices}`)
 
       winner = game.determineRoundWinner(roundChoices);
 
