@@ -46,8 +46,8 @@ class RPSGame {
      Accessor Methods
      - Get object properties
      ************************************************************* */
-  getGameDBRef() {
-    return this.#db.ref();
+  getGameDB() {
+    return this.#db;
   }
 
   getGameID() {
@@ -122,7 +122,8 @@ $(document).ready(function() {
   game.initDB(firebaseConfig);
 
   // Get the reference to the appropriate game object in the database.
-  var dbRef = game.getGameDBRef(),
+  var db = game.getGameDB();
+  var dbRef = game.getGameDB().ref(),
       // Get temporary game reference to prevent .on('value') events
       // from throwing a TypeError
       gameID = dbRef.push(),
@@ -170,7 +171,7 @@ $(document).ready(function() {
       // DEBUG:
       console.log('ASSERT: We have a game waiting for a second player.');
 
-      gameID = snapshot.ref.toString(),
+      gameID = snapshot.ref,
       playerPos = 2;
       
       // DEBUG:
@@ -189,7 +190,7 @@ $(document).ready(function() {
       // DEBUG:
       console.log('We don\'t have a game waiting for a second player.');
 
-      gameID = `${dbRef}${tempGameID}`;
+      gameID = game.getGameDB().ref(`${tempGameID}`);
 
       dbRef.update({
         [`${tempGameID}`]: {
