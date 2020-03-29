@@ -44,6 +44,8 @@ class RPSGame {
   #round = 0;
   #playerID = null;
   #playerPos = 1;
+  #wins = 0;
+  #losses = 0;
   
   // METHODS
   /* *************************************************************
@@ -83,13 +85,29 @@ class RPSGame {
     return this.#playerPos;
   }
 
+  getPlayerWins() {
+    return this.#wins;
+  }
+
+  getPlayerLosses() {
+    return this.#losses;
+  }
+
   /* *************************************************************
      Incrementer Methods
      - Increment object properties
      ************************************************************* */   
   addRound() {
     this.#round++;
-  }  
+  }
+  
+  addWin() {
+    this.#wins++;
+  }
+
+  addLoss() {
+    this.#losses++;
+  }
 
   /* *************************************************************
      Setter Methods
@@ -150,8 +168,6 @@ $(document).ready(async () => {
   $('#playerID').text(game.getPlayerID());
   $('#game-instructions').append(game.getInstr());
 
-  console.log(`instructions: ${game.getInstr()}`);
-
   // Listen for player's choice
   $('img').on('click', event => {
     event.preventDefault();
@@ -209,7 +225,9 @@ $(document).ready(async () => {
       snapshot.ref.update({
           [`player${playerPos}`]: { 
             id: playerID,
-            username: `Player ${playerPos}`
+            username: `Player ${playerPos}`,
+            wins: 0,
+            losses: 0
           },
           waiting: false
       });        
@@ -225,7 +243,9 @@ $(document).ready(async () => {
         [`${gameID}`]: {
           [`player${playerPos}`]: { 
             id: playerID,
-            username: `Player ${playerPos}`
+            username: `Player ${playerPos}`,
+            wins: 0,
+            losses: 0
           },
           waiting: true,
           timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -253,6 +273,7 @@ $(document).ready(async () => {
   };
   */
 
+  // Listen for changes to Player 1's username.
   db.ref(`${game.getGameID()}/player1/username`).on('value', snapshot => {
     var username = snapshot.val();
     
@@ -262,6 +283,7 @@ $(document).ready(async () => {
     console.log(`Error Code: ${err.code}`);
   });
 
+  // Listen for changes to Player 2's username.
   db.ref(`${game.getGameID()}/player2/username`).on('value', snapshot => {
     var username = snapshot.val();
     
@@ -270,7 +292,28 @@ $(document).ready(async () => {
   }), err => {
     console.log(`Error Code: ${err.code}`);
   };
-  
+
+  // Listen for changes to Player 1's wins.
+  db.ref(`${game.getGameID()}/player1/wins`).on('value', snapshot => {
+    var wins = snapshot.val();
+    
+    if (wins !== null)
+      $('#player1-wins').text(wins).attr('style', 'color: #138580;');
+  }, err => {
+    console.log(`Error Code: ${err.code}`);
+  });  
+
+  // Listen for changes to Player 1's losses.
+  db.ref(`${game.getGameID()}/player1/losses`).on('value', snapshot => {
+    var losses = snapshot.val();
+    
+    if (losses !== null)
+      $('#player1-losses').text(losses).attr('style', 'color: #138580;');
+  }, err => {
+    console.log(`Error Code: ${err.code}`);
+  });  
+
+  // Listen for changes to Player 1's round choice.
   db.ref(`${game.getGameID()}/player1/choice`).on('value', snapshot => {
     if (snapshot.val()) {
       player1Choice = snapshot.val();
@@ -294,6 +337,27 @@ $(document).ready(async () => {
     console.log(`Error Code: ${err.code}`);
   }
 
+  // Listen for changes to Player 2's wins.
+  db.ref(`${game.getGameID()}/player2/wins`).on('value', snapshot => {
+    var wins = snapshot.val();
+    
+    if (wins !== null)
+      $('#player2-wins').text(wins).attr('style', 'color: #D81E23;');
+  }, err => {
+    console.log(`Error Code: ${err.code}`);
+  });  
+
+  // Listen for changes to Player 2's losses.
+  db.ref(`${game.getGameID()}/player2/losses`).on('value', snapshot => {
+    var losses = snapshot.val();
+    
+    if (losses !== null)
+      $('#player2-losses').text(losses).attr('style', 'color: #D81E23;');
+  }, err => {
+    console.log(`Error Code: ${err.code}`);
+  });
+
+  // Listen for changes to Player 2's round choice.
   db.ref(`${game.getGameID()}/player2/choice`).on('value', snapshot => {
     if (snapshot.val()) {
       player2Choice = snapshot.val();
@@ -318,19 +382,54 @@ $(document).ready(async () => {
   }
 
   db.ref(`${game.getGameID()}/choices`).on('child_added', snapshot => {
-    var winningChoice = game.determineRoundWinner(`${player1Choice}-${player2Choice}`),
-    winner = "TIE";
+    var winningChoice = 
+      game.determineRoundWinner(`${player1Choice}-${player2Choice}`),
+        player = game.getPlayerPos();
+        winner = "TIE",
+        color = '#DA9B1F';
 
     if (player1Choice === winningChoice) {
       // ASSERT: Player 1 won this round.
+      // Display the winner with appropriate styling.
       winner = $('#player1-username').text();
+      color = '#138580';
+
+      // If this player is the winner, increment wins; 
+      // otherwise, increment losses.
+      if (player === 1) {
+        game.addWin();
+      }
+      else {
+        game.addLoss();
+      }
     } else if (player2Choice === winningChoice) {
-      // ASSERT: Playr 2 won this round.
+      // ASSERT: Player 2 won this round.
+      // Display the winner with appropriate styling.
       winner = $('#player2-username').text();
+      color = '#D81E23';
+
+      // If this player is the winner, increment wins;
+      // otherwise, increment losses.
+      if (player === 2) {
+        game.addWin();
+      }
+      else {
+        game.addLoss();
+      }      
     }
+
+    // Update this player's stats in the database.
+    gameRef.child(`player${player}`).update({
+      wins: game.getPlayerWins(),
+      losses: game.getPlayerLosses()
+    });        
 
     // DEBUG:
     console.log(`The winner of Round ${game.getRoundNo()} was ${winner}!`);
+
+    $('label[for="round-winner"]').text(`Round ${game.getRoundNo()} Winner`);
+    $('#round-winner').text(winner).attr('style', `color: ${color};`);
+
   }), err => {
     console.log(`Error Code: ${err.code}`);
   }
