@@ -26,5 +26,15 @@ var gameboard = {
  SCRATCHPAD 
  ******************************************************************************/
 /*
+  db.once('child_added').then(snapshot => {
+    // console.log('A child was added!');
+    // console.log(snapshot.ref.toString());
 
+    snapshot.forEach(childSnapshot => {
+      // console.log(`${childSnapshot.key}: ${childSnapshot.val()}`);
+    });
+
+  }), function(err) {
+    console.log(`Error Code: ${err.code}`);
+  };
 */

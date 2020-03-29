@@ -139,9 +139,6 @@ class RPSGame {
   determineRoundWinner(choices) {
     var winner = this.#rules[`${choices}`];
 
-    // DEBUG:
-    console.log(`winner: ${winner}`);
-
     return winner;
   }      
 }
@@ -258,20 +255,6 @@ $(document).ready(async () => {
   }, err => {
       console.log(`Error Code: ${err.code}`);
   }); 
-
-  /*
-  db.once('child_added').then(snapshot => {
-    // console.log('A child was added!');
-    // console.log(snapshot.ref.toString());
-
-    snapshot.forEach(childSnapshot => {
-      // console.log(`${childSnapshot.key}: ${childSnapshot.val()}`);
-    });
-
-  }), function(err) {
-    console.log(`Error Code: ${err.code}`);
-  };
-  */
 
   // Listen for changes to Player 1's username.
   db.ref(`${game.getGameID()}/player1/username`).on('value', snapshot => {
@@ -422,13 +405,22 @@ $(document).ready(async () => {
     gameRef.child(`player${player}`).update({
       wins: game.getPlayerWins(),
       losses: game.getPlayerLosses()
-    });        
+    });    
 
     // DEBUG:
     console.log(`The winner of Round ${game.getRoundNo()} was ${winner}!`);
 
     $('label[for="round-winner"]').text(`Round ${game.getRoundNo()} Winner`);
     $('#round-winner').text(winner).attr('style', `color: ${color};`);
+
+    // Reset player choices and re-enable game tokens.
+    gameRef.child(`player${player}`).update({
+      choice: null
+    });
+
+    player1Choice = null;
+    player2Choice = null;
+    $('#rps-tokens').attr({ disabled: false });
 
   }), err => {
     console.log(`Error Code: ${err.code}`);
