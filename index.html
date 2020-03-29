@@ -29,24 +29,32 @@
     <main class="container">
       <div class="row justify-content-center mt-4">
         <div class="col-sm-4">
-          <div class="card">
+          <div id="player1-card" class="card">
             <h5 id="player1-username" class="card-header">Player 1</h5>
             <div class="card-body">
-              <h5>Wins</h5>
-              <div class="wins"></div>
-              <h5>Losses</h5>
-              <div class="wins"></div>              
+              <div class="row">
+                <h5 class="header-label col-4">Wins</h5>
+                <h5 id="player1-wins" class="player-stats col-sm-2 text-right"></h5>
+              </div>
+              <div class="row">
+                <h5 class="header-label col-4">Losses</h5>
+                <h5 id="player1-losses" class="player-stats col-sm-2 text-right"></h5>
+              </div>              
             </div>
           </div>
         </div>
         <div class="col-sm-4">
-          <div class="card">
+          <div id="player2-card" class="card">
             <h5 id="player2-username" class="card-header">Player 2</h5>
             <div class="card-body">
-              <h5>Wins</h5>
-              <div class="wins"></div>
-              <h5>Losses</h5>
-              <div class="wins"></div>              
+              <div class="row">
+                <h5 class="header-label col-4">Wins</h5>
+                <h5 id="player2-wins" class="player-stats col-sm-2 text-right"></h5>
+              </div>
+              <div class="row">
+                <h5 class="header-label col-4">Losses</h5>
+                <h5 id="player2-losses" class="player-stats col-sm-2 text-right"></h5>
+              </div>                
             </div>
           </div>
         </div>        
@@ -89,9 +97,9 @@
             <h5 class="card-header">Player Info</h5>
             <div class="card-body">
               <div class="card-text">
-                <label for="round-no">Round </label>
-                <div id="round-no"></div>
-                <label for="playerID">Player ID</label>
+                <label for="round-winner">Round Winner</label>
+                <div id="round-winner"></div>
+                <label for="playerID" class="mt-2">Player ID</label>
                 <div id="playerID" class="text-muted"></div>
                 <form>
                   <div class="form-group mt-2">

@@ -52,13 +52,21 @@ body {
 /******************************************************************************
  Main Elements (Primary Content)
 *******************************************************************************/
-figure, 
-label[for="#round-no"] {
+#player1-card h5,
+#player2-card h5 {
+  display: inline-block;
+}
+
+figure {
   display: inline-block;
 }
 
 .game-token {
   max-width: 120px;
+}
+
+#round-winner {
+  font-weight: bold;
 }
 
 /******************************************************************************
