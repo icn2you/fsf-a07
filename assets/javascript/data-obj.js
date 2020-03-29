@@ -37,4 +37,22 @@ var gameboard = {
   }), function(err) {
     console.log(`Error Code: ${err.code}`);
   };
+
+  if (player2Choice) {
+    gameRef.update({
+      rounds: rounds
+    });
+
+    db.ref(`${game.getGameID()}/choices`).transaction(currentData => {
+        return { [`round${rounds}`]: { player1: player1Choice, player2: player2Choice } };
+    }, (err, committed, snapshot) => {
+      if (err) {
+        console.log(`Database transaction failed due to Error ${err}`);
+      } else if (!committed) {
+        console.log('Database transacton aborted.');
+      } else {
+        console.log('Data successfully added to database.');
+      }
+    });
+  }
 */
