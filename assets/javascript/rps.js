@@ -9,6 +9,14 @@ round, each player will pick rock, paper, or scissors by clicking the ap-
 propriate icon. The app will then announce the winner and keep track of each
 players tallies. The players can play as many rounds as they wish.
 ******************************************************************************/
+const instr = `<p>You know the drill! Click one of the icons above to play a round. Your opponent will do the same.</p> 
+<ul>
+  <li>Rock crushes Scissors.</li>
+  <li>Paper covers Rock.</li>
+  <li>Scissors cuts Paper.</li>
+</ul>
+<p>Play as many rounds as you wish. Do not reload the page; otherwise you will end your game. Enjoy!</p>`;
+
 // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAlEc21BrIyBlo8HIH8z-jLpvnzPFASmFc",
@@ -22,6 +30,7 @@ const firebaseConfig = {
 
 class RPSGame {
   // PROPERTIES
+  #db = null;
   #rules = { 
     'rock-scissors': 'rock',
     'scissors-rock': 'rock',
@@ -30,7 +39,7 @@ class RPSGame {
     'paper-rock': 'paper',
     'rock-paper': 'paper'
   };
-  #db = null;
+  #instr = '';
   #gameID = null;
   #round = 0;
   #playerID = null;
@@ -41,7 +50,8 @@ class RPSGame {
      Constructor Method
      - Create an object of type TriviaGame
      ************************************************************* */
-  constructor(playerID) {
+  constructor(instructions, playerID) {
+      this.#instr = instructions;
       this.#playerID = playerID;
   }
       
@@ -51,6 +61,10 @@ class RPSGame {
      ************************************************************* */
   getGameDB() {
     return this.#db;
+  }
+
+  getInstr() {
+    return this.#instr;
   }
 
   getGameID() {
@@ -121,7 +135,7 @@ $(document).ready(async () => {
       id = `p${now.getTime()}-${Math.floor(Math.random() * 1000000)}`;
   
   // Create new RPS game object.
-  let game = new RPSGame(id);
+  let game = new RPSGame(instr, id);
 
   // Initiate the RPS game database.
   game.initDB(firebaseConfig);
@@ -134,6 +148,9 @@ $(document).ready(async () => {
 
   // Display player ID.
   $('#playerID').text(game.getPlayerID());
+  $('#game-instructions').append(game.getInstr());
+
+  console.log(`instructions: ${game.getInstr()}`);
 
   // Listen for player's choice
   $('img').on('click', event => {
@@ -257,16 +274,18 @@ $(document).ready(async () => {
   db.ref(`${game.getGameID()}/player1/choice`).on('value', snapshot => {
     if (snapshot.val()) {
       player1Choice = snapshot.val();
+
+      var rounds = game.getRoundNo();
       
       // DEBUG
-      console.log(`Player 1's choice: ${p1Choice}`);
+      console.log(`Player 1's choice: ${player1Choice}`);
 
       if (player2Choice) {
         gameRef.update({
-          rounds: game.getRoundNo(),
-          choices: { [`round${game.getRoundNo()}`]: { 
-            player1: `${player1Choice}`,
-            player2: `${player2Choice}`
+          rounds: rounds,
+          choices: { [`${rounds}`]: { 
+            player1: player1Choice,
+            player2: player2Choice
           }
         }});
       }
@@ -278,16 +297,18 @@ $(document).ready(async () => {
   db.ref(`${game.getGameID()}/player2/choice`).on('value', snapshot => {
     if (snapshot.val()) {
       player2Choice = snapshot.val();
+
+      var rounds = game.getRoundNo();      
       
       // DEBUG
-      console.log(`Player 2's choice: ${p2Choice}`);
+      console.log(`Player 2's choice: ${player2Choice}`);
 
       if (player1Choice) {
         gameRef.update({
-          rounds: game.getRoundNo(),
-          choices: { `round${game.getRoundNo()}` : { 
-            player1: `${player1Choice}`,
-            player2: `${player2Choice}`
+          rounds: rounds,
+          choices: { [`round${rounds}`]: { 
+            player1: player1Choice,
+            player2: player2Choice
           }
         }});
       }
@@ -302,10 +323,10 @@ $(document).ready(async () => {
 
     if (player1Choice === winningChoice) {
       // ASSERT: Player 1 won this round.
-      winner = $('#player1-username').val();
+      winner = $('#player1-username').text();
     } else if (player2Choice === winningChoice) {
       // ASSERT: Playr 2 won this round.
-      winner = $('#player2-username').val();
+      winner = $('#player2-username').text();
     }
 
     // DEBUG:
