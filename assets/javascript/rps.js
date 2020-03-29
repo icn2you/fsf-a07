@@ -165,7 +165,7 @@ $(document).ready(async () => {
   $('#playerID').text(game.getPlayerID());
   $('#game-instructions').append(game.getInstr());
 
-  // Listen for player's choice
+  // Listen for player's choice.
   $('img').on('click', event => {
     event.preventDefault();
 
@@ -195,8 +195,11 @@ $(document).ready(async () => {
     }
   });
 
+  // Listen for changes to username.
   $('#username').on('change', () => {
     var username = $('#username').val();
+
+    $('#username').attr({ disabled: true }).attr({ placeholder: '' }).addClass('text-muted');
 
     if (username && username.length > 0) {
       gameRef.child(`player${game.getPlayerPos()}`).update({
@@ -205,6 +208,8 @@ $(document).ready(async () => {
     }
   });
 
+  // Select the last game added to the database to determine if a player is waiting
+  // for an opponent. If so, join that game; otherwise, create a new game.
   await db.ref().orderByValue().limitToLast(1).once('child_added').then(snapshot => {
     var gameID = `game-${now.getTime()}-${Math.floor(Math.random() * 1000000)}`,
         playerID = game.getPlayerID(),
@@ -227,7 +232,9 @@ $(document).ready(async () => {
             losses: 0
           },
           waiting: false
-      });        
+      });
+      
+      $('#system-msg').text('You have an opponent!');
     }
     else {
       // ASSERT: We don't have a game waiting for a second player.
@@ -248,13 +255,23 @@ $(document).ready(async () => {
           timestamp: firebase.database.ServerValue.TIMESTAMP
         }
       });
+
+      $('#system-msg').addClass('waiting').text('Awaiting an opponent ');
     }
 
     game.setGameID(gameID);
     game.setPlayerPos(playerPos);
   }, err => {
       console.log(`Error Code: ${err.code}`);
-  }); 
+  });
+
+  // Listen for waiting to end.
+  db.ref(`${game.getGameID()}/waiting`).on('value', snapshot => {
+    var stillWaiting = snapshot.val();
+
+    if (!stillWaiting)
+      $('#system-msg').removeClass('waiting').text('Someone go!');
+  });
 
   // Listen for changes to Player 1's username.
   db.ref(`${game.getGameID()}/player1/username`).on('value', snapshot => {
@@ -309,11 +326,18 @@ $(document).ready(async () => {
       if (player2Choice) {
         gameRef.update({
           rounds: rounds,
-          choices: { [`${rounds}`]: { 
+          choices: { [`round${rounds}`]: { 
             player1: player1Choice,
             player2: player2Choice
           }
         }});
+
+        $('#system-msg').removeClass('waiting');
+      } 
+      else {
+        var slowPers = $("#player2-username").text();
+
+        $('#system-msg').text(`Awaiting ${slowPers}\'s selection `).addClass('waiting');
       }
     }
   }), err => {
@@ -358,16 +382,24 @@ $(document).ready(async () => {
             player2: player2Choice
           }
         }});
+
+        $('#system-msg').removeClass('waiting');
+      }
+      else {
+        var slowPers = $("#player1-username").text();
+
+        $('#system-msg').text(`Awaiting ${slowPers}\'s selection `).addClass('waiting');
       }
     }
   }), err => {
     console.log(`Error Code: ${err.code}`);
   }
 
+  // Listen for the end of a game round.
   db.ref(`${game.getGameID()}/choices`).on('child_added', snapshot => {
     var winningChoice = 
       game.determineRoundWinner(`${player1Choice}-${player2Choice}`),
-        player = game.getPlayerPos();
+        player = game.getPlayerPos(),
         winner = "TIE",
         color = '#DA9B1F';
 
@@ -412,6 +444,13 @@ $(document).ready(async () => {
 
     $('label[for="round-winner"]').text(`Round ${game.getRoundNo()} Winner`);
     $('#round-winner').text(winner).attr('style', `color: ${color};`);
+    
+    if (winner !== 'TIE') {
+      $('#system-msg').text(`CONGRATS, ${winner}!`);
+    }
+    else {
+      $('#system-msg').text(`You tied.`);
+    }
 
     // Reset player choices and re-enable game tokens.
     gameRef.child(`player${player}`).update({
