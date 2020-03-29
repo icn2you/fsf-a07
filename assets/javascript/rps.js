@@ -264,7 +264,7 @@ $(document).ready(async () => {
       if (player2Choice) {
         gameRef.update({
           rounds: game.getRoundNo(),
-          choices: { `round${game.getRoundNo()}` : { 
+          choices: { [`round${game.getRoundNo()}`]: { 
             player1: `${player1Choice}`,
             player2: `${player2Choice}`
           }
