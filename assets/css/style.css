@@ -46,7 +46,14 @@ This CSS specifies the layout and styling for the multiplayer RPS game app.
 body {
   background-color: #EEE;
   color: #000;
-  font-family: sans-serif;
+  font-family: 'Open Sans', sans-serif;
+}
+
+/******************************************************************************
+ Header Elements
+*******************************************************************************/
+h4, h5 {
+  font-weight: 600;
 }
 
 /******************************************************************************
@@ -65,8 +72,49 @@ figure {
   max-width: 120px;
 }
 
-#round-winner {
+#game-instructions {
+  font-size: 0.85rem;
+}
+
+#system-msg {
+  color: #DA9B1F;
+}
+
+/******************************************************************************
+ Image Elements
+*******************************************************************************/
+#rock:active,
+#rock:hover {
+  border-color: #138580;  
+}
+
+#paper:active,
+#paper:hover {
+  border-color: #DA9B1F;  
+}
+
+#scissors:active,
+#scissors:hover {
+  border-color: #D81E23;  
+}
+
+/******************************************************************************
+ Form Elements
+*******************************************************************************/
+label {
   font-weight: bold;
+}
+
+#username:focus {
+  border-color: #DA9B1F;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(218,155, 31,1);
+}
+
+#username:disabled,
+#username:indeterminate,
+#username:visited {
+  color: #AAA !important;
+  background: rgb(250, 240, 215) !important;
 }
 
 /******************************************************************************
@@ -74,4 +122,27 @@ figure {
 *******************************************************************************/
 footer {
   display: none;
+}
+
+
+/******************************************************************************
+ Animations
+*******************************************************************************/
+.waiting:after {
+  -webkit-animation: ellipsis steps(5, end) 2000ms infinite;      
+  animation: ellipsis steps(5, end) 2000ms infinite;
+  /* ASCII code for the ellipsis character */
+  content: "\2026"; 
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  width: 0px;
+}
+
+@-webkit-keyframes ellipsis {
+  to { width: 1.5em; }
+}
+
+@keyframes ellipsis {
+  to { width: 1.5em; }
 }

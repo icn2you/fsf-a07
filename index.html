@@ -9,7 +9,10 @@
     <meta name="description" content="Full Stack Flex Bootcamp Homework 5">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="assets/images/rps-hands.png">    
+    <link rel="shortcut icon" href="assets/images/rps-hands.png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -84,7 +87,7 @@
         </div>    
       </div>
       <div class="row justify-content-center mt-2">
-        <div class="col-sm-5">
+        <div class="col-sm-4">
           <div class="card">
             <h5 class="card-header">Directions</h5>
             <div class="card-body">
@@ -92,21 +95,21 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-4">
           <div class="card">
             <h5 class="card-header">Player Info</h5>
             <div class="card-body">
               <div class="card-text">
                 <label for="round-winner">Round Winner</label>
                 <div id="round-winner"></div>
-                <label for="playerID" class="mt-2">Player ID</label>
-                <div id="playerID" class="text-muted"></div>
-                <form>
+                <label for="system-msg" class="mt-2">System Message</label>
+                <div id="system-msg"></div>
+                <form onsubmit="return false">
                   <div class="form-group mt-2">
                     <label for="username">Username</label>
-                    <input type="text" class="form-control" id="username" placeholder="RPSDominator">
+                    <input type="text" class="form-control" id="username" placeholder="RPSDominator" autocomplete="off">
                   </div>
-                  <button type="button" id="new-opponent" class="btn btn-secondary" disabled>New Opponent</button>
+                  <button type="button" id="new-opponent" class="btn btn-sm btn-secondary" disabled>New Opponent</button>
                 </form>
               </div>
             </div>
@@ -121,7 +124,7 @@
         <div class="row">
           <div class="col-12 text-center" id="site-info">
             <div id="copyright">&copy; 2020 Christopher B. Zenner. All rights reserved.</div>
-            <div id="attribution">Fonts served by <a href="https://fonts.google.com/" target="_blank">Google Fonts</a>. Favicon made by <a href="https://www.flaticon.com/authors/darius-dan" title="Darius Dan" target="_blank">Darius Dan</a> from <a href="https://www.flaticon.com/" title="Flaticon" target="_blank">FLATICON</a>.</div>
+            <div id="attribution">Open Sans font served by <a href="https://fonts.google.com/" target="_blank">Google Fonts</a>. Favicon made by <a href="https://www.flaticon.com/authors/darius-dan" title="Darius Dan" target="_blank">Darius Dan</a> from <a href="https://www.flaticon.com/" title="Flaticon" target="_blank">FLATICON</a>.</div>
           </div>
         </div>
       </div>
@@ -145,7 +148,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <!-- RPS Game Engine -->
-    <script src="assets/javascript/rps.js"></script>        
+    <script type="text/babel" src="assets/javascript/rps.js"></script>        
   </body>
 
   </html>
